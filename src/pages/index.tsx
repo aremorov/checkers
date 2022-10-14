@@ -6,7 +6,7 @@ type NumOutProps = {
   handleClick: () => void;
   children?: ReactNode;
 };
-
+const a = 1;
 const NumOut: FC<NumOutProps> = ({ i, selected, handleClick, children }) => {
   const isBlack =
     ((i - 1) % 16 < 8 && i % 2 === 0) || (i % 16 > 8 && i % 2 === 1);
