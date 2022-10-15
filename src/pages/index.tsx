@@ -6,7 +6,7 @@ type NumOutProps = {
   handleClick: () => void;
   children?: ReactNode;
 };
-const a = 1;
+
 const NumOut: FC<NumOutProps> = ({ i, selected, handleClick, children }) => {
   const isBlack =
     ((i - 1) % 16 < 8 && i % 2 === 0) || (i % 16 > 8 && i % 2 === 1);
@@ -51,33 +51,28 @@ const HomePage = () => {
     { position: 18, color: "yellow" },
     { position: 38, color: "yellow" },
   ]);
-  const [selected, setSelected] = useState<number | null>(null);
+
+  const [selected, setSelected] = useState<Piece | null>(null);
 
   const handleClickMaker = (index: number) => () => {
-    if (selected === null && pieces.some((piece) => piece.position === index)) {
-      setSelected(index);
-    } else if (selected !== null) {
+    const cellPiece = pieces.find((piece) => piece.position === index);
+
+    if (selected === null && cellPiece) {
+      setSelected(cellPiece);
+    } else if (selected) {
       if (
-        !pieces.some((piece) => piece.position === index) &&
+        !cellPiece &&
         (((index - 1) % 16 < 8 && index % 2 === 0) ||
           (index % 16 > 8 && index % 2 === 1)) &&
-        Math.abs(selected - index) < 11 &&
-        Math.abs(selected - index) > 2
+        Math.abs(selected.position - index) < 11 &&
+        Math.abs(selected.position - index) > 2
       ) {
-        console.log("move");
-        console.log(pieces[selected]?.color);
-        console.log(pieces[index]?.color);
-        console.log(pieces);
-        console.log(selected);
-        console.log(index);
         setPieces([
           {
             position: index,
-            color:
-              pieces.find((piece) => piece.position === selected)?.color ??
-              "yellow",
+            color: selected.color,
           },
-          ...pieces.filter((piece) => piece.position !== selected),
+          ...pieces.filter((piece) => piece.position !== selected.position),
         ]);
       }
       setSelected(null);
@@ -88,7 +83,7 @@ const HomePage = () => {
     <NumOut
       key={i}
       i={i}
-      selected={selected === i}
+      selected={selected?.position === i}
       handleClick={handleClickMaker(i)}
     >
       {pieces.some((piece) => piece.position === i) &&
