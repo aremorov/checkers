@@ -80,12 +80,10 @@ const HomePage = () => {
         !cellPiece &&
         (((index - 1) % 16 < 8 && index % 2 === 0) ||
           (index % 16 > 8 && index % 2 === 1)) &&
-        ((selected.color === "green" &&
-          index - selected.position < 11 &&
-          index - selected.position > 2) ||
-          (selected.color === "yellow" &&
-            index - selected.position > -11 &&
-            index - selected.position < -2))
+        ((selected.color === "green" && index - selected.position === 7) ||
+          index - selected.position === 9 ||
+          (selected.color === "yellow" && index - selected.position === -7) ||
+          index - selected.position === -9)
       ) {
         setPieces([
           {
@@ -114,7 +112,8 @@ const HomePage = () => {
       cellPiece.position > 8 &&
       cellPiece.position % 8 !== 1 &&
       cellPiece.position % 8 !== 0 &&
-      Math.abs(index - selected.position) < 11
+      (Math.abs(index - selected.position) === 7 ||
+        Math.abs(index - selected.position) === 9)
     ) {
       setPieces([
         {
