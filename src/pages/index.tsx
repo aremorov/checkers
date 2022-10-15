@@ -24,11 +24,11 @@ const NumOut: FC<NumOutProps> = ({ i, selected, handleClick, children }) => {
 };
 
 const YellowPiece = () => (
-  <div className="aspect-square w-10 rounded-full bg-yellow-500" />
+  <div className="aspect-square w-5 rounded-full bg-yellow-500" />
 );
 
 const GreenPiece = () => (
-  <div className="aspect-square w-10 rounded-full bg-green-400" />
+  <div className="aspect-square w-5 rounded-full bg-green-400" />
 );
 
 const num64: number[] = [];
@@ -148,8 +148,10 @@ const HomePage = () => {
   ));
 
   return (
-    <div>
-      <div className="grid grid-cols-8">{listItems}</div>
+    <div className="flex h-screen w-screen flex-col items-center justify-center">
+      <div className="grid max-h-full w-[300px] max-w-full grid-cols-8">
+        {listItems}
+      </div>
     </div>
   );
 };
