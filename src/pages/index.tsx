@@ -24,7 +24,7 @@ const NumOut: FC<NumOutProps> = ({ i, selected, handleClick, children }) => {
 };
 
 const YellowPiece = () => (
-  <div className="aspect-square w-10 rounded-full bg-yellow-400" />
+  <div className="aspect-square w-10 rounded-full bg-yellow-500" />
 );
 
 const GreenPiece = () => (
@@ -42,29 +42,45 @@ type Piece = {
   color: "green" | "yellow";
 };
 
+const initialPieces: Piece[] = [];
+
+for (let i = 1; i < 65; i++) {
+  if (
+    i < 25 &&
+    (((i - 1) % 16 < 8 && i % 2 === 0) || (i % 16 > 8 && i % 2 === 1))
+  ) {
+    initialPieces.push({ position: i, color: "green" });
+  } else if (
+    i > 40 &&
+    (((i - 1) % 16 < 8 && i % 2 === 0) || (i % 16 > 8 && i % 2 === 1))
+  ) {
+    initialPieces.push({ position: i, color: "yellow" });
+  }
+}
+
 const HomePage = () => {
-  const [pieces, setPieces] = useState<Piece[]>([
-    { position: 10, color: "green" },
-    { position: 15, color: "green" },
-    { position: 43, color: "green" },
-    { position: 13, color: "yellow" },
-    { position: 18, color: "yellow" },
-    { position: 38, color: "yellow" },
-  ]);
+  const [pieces, setPieces] = useState<Piece[]>(initialPieces);
 
   const [selected, setSelected] = useState<Piece | null>(null);
 
   const handleClickMaker = (index: number) => () => {
+    // Grab the piece, if any, on the cell for `index`
     const cellPiece = pieces.find((piece) => piece.position === index);
 
+    // Handle selecting new piece
     if (selected === null && cellPiece) {
       setSelected(cellPiece);
-    } else if (selected) {
+    }
+
+    // Handle moving to empty cell
+    if (selected) {
       if (
         !cellPiece &&
         (((index - 1) % 16 < 8 && index % 2 === 0) ||
           (index % 16 > 8 && index % 2 === 1)) &&
-        Math.abs(selected.position - index) < 11 &&
+        (selected.color === "green"
+          ? selected.position - index < 5
+          : selected.position - index > 5) &&
         Math.abs(selected.position - index) > 2
       ) {
         setPieces([
@@ -76,6 +92,35 @@ const HomePage = () => {
         ]);
       }
       setSelected(null);
+    }
+
+    // Grab the piece that the selected piece would jump to, if any,
+    const jumpserPiece = pieces.find(
+      (piece) => selected && piece.position === 2 * index - selected.position
+    );
+
+    // Handle capturing enemy piece
+    if (
+      !jumpserPiece &&
+      selected &&
+      cellPiece &&
+      selected.color !== cellPiece.color &&
+      cellPiece.position < 57 &&
+      cellPiece.position > 8 &&
+      cellPiece.position % 8 !== 1 &&
+      cellPiece.position % 8 !== 0
+    ) {
+      setPieces([
+        {
+          position: 2 * index - selected.position,
+          color: selected.color,
+        },
+        ...pieces.filter(
+          (piece) =>
+            piece.position !== selected.position &&
+            piece.position !== cellPiece.position
+        ),
+      ]);
     }
   };
 
@@ -97,16 +142,9 @@ const HomePage = () => {
 
   return (
     <div>
-      {/* <Grid1 /> */}
       <div className="grid grid-cols-8">{listItems}</div>
     </div>
   );
 };
-
-// const B = (x, y) => {
-//   ...logic...
-
-//   return(...stuff...)
-// }
 
 export default HomePage;
