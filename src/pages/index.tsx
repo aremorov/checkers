@@ -63,12 +63,14 @@ const HomePage = () => {
 
   const [selected, setSelected] = useState<Piece | null>(null);
 
+  const [ccolor, setCcolor] = useState<string>("yellow");
+
   const handleClickMaker = (index: number) => () => {
     // Grab the piece, if any, on the cell for `index`
     const cellPiece = pieces.find((piece) => piece.position === index);
 
     // Handle selecting new piece
-    if (selected === null && cellPiece) {
+    if (selected === null && cellPiece && cellPiece.color === ccolor) {
       setSelected(cellPiece);
     }
 
@@ -78,10 +80,12 @@ const HomePage = () => {
         !cellPiece &&
         (((index - 1) % 16 < 8 && index % 2 === 0) ||
           (index % 16 > 8 && index % 2 === 1)) &&
-        (selected.color === "green"
-          ? selected.position - index < 5
-          : selected.position - index > 5) &&
-        Math.abs(selected.position - index) > 2
+        ((selected.color === "green" &&
+          index - selected.position < 11 &&
+          index - selected.position > 2) ||
+          (selected.color === "yellow" &&
+            index - selected.position > -11 &&
+            index - selected.position < -2))
       ) {
         setPieces([
           {
@@ -90,6 +94,7 @@ const HomePage = () => {
           },
           ...pieces.filter((piece) => piece.position !== selected.position),
         ]);
+        ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
       }
       setSelected(null);
     }
@@ -108,7 +113,8 @@ const HomePage = () => {
       cellPiece.position < 57 &&
       cellPiece.position > 8 &&
       cellPiece.position % 8 !== 1 &&
-      cellPiece.position % 8 !== 0
+      cellPiece.position % 8 !== 0 &&
+      Math.abs(index - selected.position) < 11
     ) {
       setPieces([
         {
@@ -121,6 +127,7 @@ const HomePage = () => {
             piece.position !== cellPiece.position
         ),
       ]);
+      ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
     }
   };
 
