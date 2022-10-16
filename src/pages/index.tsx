@@ -21,9 +21,13 @@ const HomePage = () => {
   }, [newGameMutation, router]);
 
   return (
-    <div>
+    <div className="flex h-screen w-screen flex-col items-center justify-center gap-12">
       <h1 className="text-5xl">Checler Sleven</h1>
-      <button onClick={handleNewGame} className={blueButtonStyle}>
+      <button
+        disabled={newGameMutation.isLoading}
+        onClick={handleNewGame}
+        className={blueButtonStyle}
+      >
         New Game
       </button>
     </div>

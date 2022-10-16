@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import React, { FC, ReactNode, useState } from "react";
 
 const blueButtonStyle =
-  "bg-blue-600 text-white py-1 px-4 rounded-md uppercase hover:bg-blue-800";
+  "disabled:bg-slate-400 bg-blue-600 text-white py-1 px-4 rounded-md uppercase hover:bg-blue-800";
 
 type NumOutProps = {
   i: number;
@@ -28,11 +28,11 @@ const NumOut: FC<NumOutProps> = ({ i, selected, handleClick, children }) => {
 };
 
 const YellowPiece = () => (
-  <div className="aspect-square w-5 rounded-full bg-yellow-500" />
+  <div className="aspect-square w-2/3 rounded-full bg-yellow-500" />
 );
 
 const GreenPiece = () => (
-  <div className="aspect-square w-5 rounded-full bg-green-400" />
+  <div className="aspect-square w-2/3 rounded-full bg-green-400" />
 );
 
 const num64: number[] = [];
@@ -163,7 +163,7 @@ const GamePage = () => {
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center">
       {JSON.stringify(query)}
-      <div className="grid max-h-full w-[300px] max-w-full grid-cols-8 overflow-hidden rounded-lg border-4 border-red-500">
+      <div className="grid aspect-square w-screen max-w-[75vh] grid-cols-8 overflow-hidden rounded-lg border-4 border-red-500">
         {listItems}
       </div>
       <div className="flex items-center gap-2 p-4">
