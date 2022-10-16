@@ -66,8 +66,10 @@ const menuButton = () => {
   alert("Menu");
 };
 
-const idButton = () => {
-  alert("ID");
+const handleShare = () => {
+  const gameLink = window.location.href;
+
+  navigator.clipboard.writeText(gameLink);
 };
 
 const GamePage = () => {
@@ -170,8 +172,8 @@ const GamePage = () => {
         <button className={blueButtonStyle} type="button" onClick={menuButton}>
           Menu
         </button>
-        <button className={blueButtonStyle} type="button" onClick={idButton}>
-          game id
+        <button className={blueButtonStyle} type="button" onClick={handleShare}>
+          share game link
         </button>
       </div>
     </div>
