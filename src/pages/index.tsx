@@ -1,4 +1,19 @@
 import React, { FC, ReactNode, useState } from "react";
+import styled from "styled-components";
+
+const Button = styled.button`
+  background-color: #3949ab;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 5px;
+  outline: 0;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0px 2px 2px lightgray;
+  &:hover {
+    background-color: #283593;
+  }
+`;
 
 type NumOutProps = {
   i: number;
@@ -57,6 +72,10 @@ for (let i = 1; i < 65; i++) {
     initialPieces.push({ position: i, color: "yellow" });
   }
 }
+
+const menuButton = () => {
+  alert("Menu");
+};
 
 const HomePage = () => {
   const [pieces, setPieces] = useState<Piece[]>(initialPieces);
@@ -151,6 +170,9 @@ const HomePage = () => {
       <div className="grid max-h-full w-[300px] max-w-full grid-cols-8">
         {listItems}
       </div>
+      <Button type="button" onClick={menuButton}>
+        Menu
+      </Button>
     </div>
   );
 };
