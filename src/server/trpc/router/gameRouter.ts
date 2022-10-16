@@ -43,7 +43,7 @@ export const gameRouter = t.router({
   //     return ctx.prisma.example.findMany();
   //   }),
 
-  newGame: t.procedure.query(async ({ ctx }) => {
+  newGame: t.procedure.mutation(async ({ ctx }) => {
     const game = await ctx.prisma.gameState.create({
       data: {
         game_state: JSON.stringify(initialGameState),
