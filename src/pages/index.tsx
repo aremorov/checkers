@@ -1,19 +1,7 @@
 import React, { FC, ReactNode, useState } from "react";
-import styled from "styled-components";
 
-const Button = styled.button`
-  background-color: #3949ab;
-  color: white;
-  padding: 5px 15px;
-  border-radius: 5px;
-  outline: 0;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 0px 2px 2px lightgray;
-  &:hover {
-    background-color: #283593;
-  }
-`;
+const blueButtonStyle =
+  "bg-blue-600 text-white py-1 px-4 rounded-md uppercase hover:bg-blue-800";
 
 type NumOutProps = {
   i: number;
@@ -75,6 +63,10 @@ for (let i = 1; i < 65; i++) {
 
 const menuButton = () => {
   alert("Menu");
+};
+
+const idButton = () => {
+  alert("ID");
 };
 
 const HomePage = () => {
@@ -167,12 +159,17 @@ const HomePage = () => {
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center">
-      <div className="grid max-h-full w-[300px] max-w-full grid-cols-8">
+      <div className="grid max-h-full w-[300px] max-w-full grid-cols-8 overflow-hidden rounded-lg border-4 border-red-500">
         {listItems}
       </div>
-      <Button type="button" onClick={menuButton}>
-        Menu
-      </Button>
+      <div className="flex items-center gap-2 p-4">
+        <button className={blueButtonStyle} type="button" onClick={menuButton}>
+          Menu
+        </button>
+        <button className={blueButtonStyle} type="button" onClick={idButton}>
+          game id
+        </button>
+      </div>
     </div>
   );
 };
