@@ -53,6 +53,21 @@ export const gameRouter = t.router({
     return game.id;
   }),
 
+  getGameState: t.procedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const { id } = input;
+
+      const game = await ctx.prisma.gameState.findFirstOrThrow({
+        where: {
+          id,
+        },
+      });
+
+      const gameState = JSON.parse(game.game_state);
+      return gameState as GameStateObject;
+    }),
+
   //   updateGameState: t.procedure
   //     // .input({ ...move input...  })
   //     //.query(({ input, ctx }) => {
@@ -71,4 +86,4 @@ export const gameRouter = t.router({
 // index.tsx => blahblah.vercel.app/
 // /game/[gameId].tsx => blahblah.vercel.app/game/sa09f89032f09-32-0f9wer
 
-//Make menu button, makes new game with trpc query, get id, share link, user redirected to game, next.js router
+//two functions: load game (grab game from database), update game: move down from frontend, validate, return new game state, update database

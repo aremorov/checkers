@@ -1,10 +1,12 @@
 import { useRouter } from "next/router";
-import React, { FC, ReactNode, useState } from "react";
+import React, { FC, ReactNode, useEffect, useState } from "react";
+import { trpc } from "../../utils/trpc";
 
 const blueButtonStyle =
   "disabled:bg-slate-400 bg-blue-600 text-white py-1 px-4 rounded-md uppercase hover:bg-blue-800";
 
 type NumOutProps = {
+  //RENAME
   i: number;
   selected: boolean;
   handleClick: () => void;
@@ -46,22 +48,6 @@ type Piece = {
   color: "green" | "yellow";
 };
 
-const initialPieces: Piece[] = [];
-
-for (let i = 1; i < 65; i++) {
-  if (
-    i < 25 &&
-    (((i - 1) % 16 < 8 && i % 2 === 0) || (i % 16 > 8 && i % 2 === 1))
-  ) {
-    initialPieces.push({ position: i, color: "green" });
-  } else if (
-    i > 40 &&
-    (((i - 1) % 16 < 8 && i % 2 === 0) || (i % 16 > 8 && i % 2 === 1))
-  ) {
-    initialPieces.push({ position: i, color: "yellow" });
-  }
-}
-
 const menuButton = () => {
   alert("Menu");
 };
@@ -75,11 +61,24 @@ const handleShare = () => {
 const GamePage = () => {
   const { query } = useRouter();
 
-  const [pieces, setPieces] = useState<Piece[]>(initialPieces);
+  const gameStateQuery = trpc.game.getGameState.useQuery({
+    id: query?.gameID as unknown as string,
+  });
+
+  const [pieces, setPieces] = useState<Piece[]>([]);
 
   const [selected, setSelected] = useState<Piece | null>(null);
 
   const [ccolor, setCcolor] = useState<string>("yellow");
+
+  useEffect(() => {
+    const syncPieces = () => {
+      if (gameStateQuery.data) {
+        setPieces(gameStateQuery.data.pieces);
+      }
+    };
+    syncPieces();
+  }, [gameStateQuery.data]);
 
   const handleClickMaker = (index: number) => () => {
     // Grab the piece, if any, on the cell for `index`
@@ -164,7 +163,6 @@ const GamePage = () => {
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center">
-      {JSON.stringify(query)}
       <div className="grid aspect-square w-screen max-w-[75vh] grid-cols-8 overflow-hidden rounded-lg border-4 border-red-500">
         {listItems}
       </div>
