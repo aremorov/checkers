@@ -6,8 +6,11 @@ type Piece = {
   color: "green" | "yellow";
 };
 
+type CurrentColor = "yellow" | "green";
+
 type GameStateObject = {
   pieces: Piece[];
+  ccolor: CurrentColor;
 };
 
 const initialPieces: Piece[] = [];
@@ -28,21 +31,10 @@ for (let i = 1; i < 65; i++) {
 
 const initialGameState: GameStateObject = {
   pieces: initialPieces,
+  ccolor: "yellow",
 };
 
 export const gameRouter = t.router({
-  //   hello: t.procedure
-  //     .input(z.object({ text: z.string().nullish() }).nullish())
-  //     .query(({ input }) => {
-  //       return {
-  //         greeting: `Hello ${input?.text ?? "world"}`,
-  //       };
-  //     }),
-
-  //   getAll: t.procedure.query(({ ctx }) => {
-  //     return ctx.prisma.example.findMany();
-  //   }),
-
   newGame: t.procedure.mutation(async ({ ctx }) => {
     const game = await ctx.prisma.gameState.create({
       data: {
@@ -68,17 +60,23 @@ export const gameRouter = t.router({
       return gameState as GameStateObject;
     }),
 
-  //   updateGameState: t.procedure
-  //     // .input({ ...move input...  })
-  //     //.query(({ input, ctx }) => {
-  //         // Validate the move is fair
+  updateGameState: t.procedure
+    .input(z.object({ id: z.string(), gameState: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { id, gameState } = input;
 
-  //         // Update the game state object
+      const game = await ctx.prisma.gameState.update({
+        where: {
+          id,
+        },
+        data: {
+          game_state: gameState,
+        },
+      });
 
-  //         // Update the database entry
-
-  //         // Return the object
-  //     })
+      const newGameState = JSON.parse(game.game_state);
+      return newGameState as GameStateObject;
+    }),
 });
 
 // https://www.prisma.io/docs/concepts/components/prisma-client

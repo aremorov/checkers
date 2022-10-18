@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import React, { FC, ReactNode, useEffect, useState } from "react";
+import React, { FC, ReactNode, useEffect, useState, useRef } from "react";
 import { trpc } from "../../utils/trpc";
 
 const blueButtonStyle =
@@ -65,20 +65,37 @@ const GamePage = () => {
     id: query?.gameID as unknown as string,
   });
 
+  const updateMutation = trpc.game.updateGameState.useMutation();
+
   const [pieces, setPieces] = useState<Piece[]>([]);
 
   const [selected, setSelected] = useState<Piece | null>(null);
 
-  const [ccolor, setCcolor] = useState<string>("yellow");
+  const [ccolor, setCcolor] = useState<string | null>(null);
 
   useEffect(() => {
     const syncPieces = () => {
       if (gameStateQuery.data) {
         setPieces(gameStateQuery.data.pieces);
+        setCcolor(gameStateQuery.data.ccolor);
       }
     };
     syncPieces();
   }, [gameStateQuery.data]);
+
+  const shouldUpdateRef = useRef(false);
+
+  const updateGame = () => (shouldUpdateRef.current = true);
+
+  useEffect(() => {
+    if (shouldUpdateRef.current) {
+      updateMutation.mutate({
+        id: query?.gameID as unknown as string,
+        gameState: JSON.stringify({ pieces, ccolor }),
+      });
+      shouldUpdateRef.current = false;
+    }
+  }, [shouldUpdateRef, updateMutation, ccolor, pieces, query?.gameID]);
 
   const handleClickMaker = (index: number) => () => {
     // Grab the piece, if any, on the cell for `index`
@@ -108,6 +125,7 @@ const GamePage = () => {
           ...pieces.filter((piece) => piece.position !== selected.position),
         ]);
         ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
+        updateGame();
       }
       setSelected(null);
     }
@@ -142,6 +160,7 @@ const GamePage = () => {
         ),
       ]);
       ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
+      updateGame();
     }
   };
 
@@ -163,6 +182,14 @@ const GamePage = () => {
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center">
+      <div className="flex items-center gap-2 p-6">
+        <div
+          className={`flex h-6 w-6 rounded ${
+            ccolor === "yellow" ? "bg-yellow-500" : "bg-green-400"
+          }`}
+        />
+        {`${ccolor}'s turn`}
+      </div>
       <div className="grid aspect-square w-screen max-w-[75vh] grid-cols-8 overflow-hidden rounded-lg border-4 border-red-500">
         {listItems}
       </div>
