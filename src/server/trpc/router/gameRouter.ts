@@ -11,6 +11,8 @@ type CurrentColor = "yellow" | "green";
 type GameStateObject = {
   pieces: Piece[];
   ccolor: CurrentColor;
+  account1: string;
+  account2: string;
 };
 
 const initialPieces: Piece[] = [];
@@ -32,6 +34,8 @@ for (let i = 1; i < 65; i++) {
 const initialGameState: GameStateObject = {
   pieces: initialPieces,
   ccolor: "yellow",
+  account1: "",
+  account2: "",
 };
 
 export const gameRouter = t.router({

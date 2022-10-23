@@ -1,6 +1,8 @@
 import { useRouter } from "next/router";
 import React, { FC, ReactNode, useEffect, useState, useRef } from "react";
 import { trpc } from "../../utils/trpc";
+import Account from "../account";
+import Login from "../login";
 
 const blueButtonStyle =
   "disabled:bg-slate-400 bg-blue-600 text-white py-1 px-4 rounded-md uppercase hover:bg-blue-800";
@@ -73,6 +75,8 @@ const GamePage = () => {
 
   const [ccolor, setCcolor] = useState<string | null>(null);
 
+  const loggedIn = Account();
+
   useEffect(() => {
     const syncPieces = () => {
       if (gameStateQuery.data) {
@@ -102,7 +106,12 @@ const GamePage = () => {
     const cellPiece = pieces.find((piece) => piece.position === index);
 
     // Handle selecting new piece
-    if (selected === null && cellPiece && cellPiece.color === ccolor) {
+    if (
+      loggedIn &&
+      selected === null &&
+      cellPiece &&
+      cellPiece.color === ccolor
+    ) {
       setSelected(cellPiece);
     }
 
@@ -200,6 +209,7 @@ const GamePage = () => {
         <button className={blueButtonStyle} type="button" onClick={handleShare}>
           share game link
         </button>
+        <Login />
       </div>
     </div>
   );

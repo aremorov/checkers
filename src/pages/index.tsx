@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { blueButtonStyle } from "./game/[gameID]";
 import { trpc } from "../utils/trpc";
-import { useEffect } from "react";
+import { Component, useEffect } from "react";
 
 const HomePage = () => {
   const newGameMutation = trpc.game.newGame.useMutation();
