@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import React, { FC, ReactNode, useEffect, useState, useRef } from "react";
+import { number } from "zod";
 import { trpc } from "../../utils/trpc";
 import Account from "../account";
 import Login from "../login";
@@ -50,6 +51,11 @@ type Piece = {
   color: "green" | "yellow";
 };
 
+type MoveObject = {
+  cellPiece: Piece;
+  selected: Piece;
+};
+
 const menuButton = () => {
   alert("Menu");
 };
@@ -64,10 +70,12 @@ const GamePage = () => {
   const { query } = useRouter();
 
   const gameStateQuery = trpc.game.getGameState.useQuery({
-    id: query?.gameID as unknown as string,
+    id: (query?.gameID as unknown as string) || "",
   });
 
   const updateMutation = trpc.game.updateGameState.useMutation();
+
+  const updateMoveMutation = trpc.game.updateMove.useMutation();
 
   const [pieces, setPieces] = useState<Piece[]>([]);
 
@@ -101,6 +109,25 @@ const GamePage = () => {
     }
   }, [shouldUpdateRef, updateMutation, ccolor, pieces, query?.gameID]);
 
+  type UpdateMoveRef = null | {
+    position1: number;
+    position2: number;
+  };
+
+  const updateMoveRef = useRef<UpdateMoveRef>(null);
+
+  // updateMoveRef.current = {selected, cellPiece}
+
+  useEffect(() => {
+    if (updateMoveRef.current !== null) {
+      updateMoveMutation.mutate({
+        id: query?.gameID as unknown as string,
+        move: updateMoveRef.current,
+      });
+      updateMoveRef.current = null;
+    }
+  }, [updateMoveMutation, query?.gameID]);
+
   const handleClickMaker = (index: number) => () => {
     // Grab the piece, if any, on the cell for `index`
     const cellPiece = pieces.find((piece) => piece.position === index);
@@ -115,38 +142,49 @@ const GamePage = () => {
       setSelected(cellPiece);
     }
 
-    // Handle moving to empty cell
+    //Handle moving to empty cell
+
+    console.log(cellPiece);
+    console.log(selected);
+    const index2 = index;
     if (selected) {
-      if (
-        !cellPiece &&
-        (((index - 1) % 16 < 8 && index % 2 === 0) ||
-          (index % 16 > 8 && index % 2 === 1)) &&
-        ((selected.color === "green" && index - selected.position === 7) ||
-          index - selected.position === 9 ||
-          (selected.color === "yellow" && index - selected.position === -7) ||
-          index - selected.position === -9)
-      ) {
-        setPieces([
-          {
-            position: index,
-            color: selected.color,
-          },
-          ...pieces.filter((piece) => piece.position !== selected.position),
-        ]);
-        ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
-        updateGame();
-      }
+      updateMoveRef.current = {
+        position1: selected.position,
+        position2: index,
+      };
       setSelected(null);
     }
+    // if (selected) {
+    //   if (
+    //     !cellPiece &&
+    //     (((index - 1) % 16 < 8 && index % 2 === 0) ||
+    //       (index % 16 > 8 && index % 2 === 1)) &&
+    //     ((selected.color === "green" && index - selected.position === 7) ||
+    //       index - selected.position === 9 ||
+    //       (selected.color === "yellow" && index - selected.position === -7) ||
+    //       index - selected.position === -9)
+    //   ) {
+    //     setPieces([
+    //       {
+    //         position: index,
+    //         color: selected.color,
+    //       },
+    //       ...pieces.filter((piece) => piece.position !== selected.position),
+    //     ]);
+    //     ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
+    //     updateGame();
+    //   }
+    //   setSelected(null);
+    // }
 
     // Grab the piece that the selected piece would jump to, if any,
-    const jumpserPiece = pieces.find(
+    const jumpPiece = pieces.find(
       (piece) => selected && piece.position === 2 * index - selected.position
     );
 
     // Handle capturing enemy piece
     if (
-      !jumpserPiece &&
+      !jumpPiece &&
       selected &&
       cellPiece &&
       selected.color !== cellPiece.color &&

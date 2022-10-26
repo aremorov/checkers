@@ -15,6 +15,16 @@ type GameStateObject = {
   account2: string;
 };
 
+type MoveObject = {
+  position1: number;
+  position2: number;
+};
+
+const ZMove = z.object({
+  position1: z.number(),
+  position2: z.number(),
+});
+
 const initialPieces: Piece[] = [];
 
 for (let i = 1; i < 65; i++) {
@@ -53,15 +63,16 @@ export const gameRouter = t.router({
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       const { id } = input;
-
-      const game = await ctx.prisma.gameState.findFirstOrThrow({
-        where: {
-          id,
-        },
-      });
-
-      const gameState = JSON.parse(game.game_state);
-      return gameState as GameStateObject;
+      let game;
+      if (id !== "") {
+        game = await ctx.prisma.gameState.findFirstOrThrow({
+          where: {
+            id,
+          },
+        });
+        const gameState = JSON.parse(game.game_state);
+        return gameState as GameStateObject;
+      }
     }),
 
   updateGameState: t.procedure
@@ -80,6 +91,75 @@ export const gameRouter = t.router({
 
       const newGameState = JSON.parse(game.game_state);
       return newGameState as GameStateObject;
+    }),
+
+  //update based on move provided:
+  //need: color, original position, new position
+  updateMove: t.procedure
+    .input(z.object({ id: z.string(), move: ZMove }))
+    .mutation(async ({ input, ctx }) => {
+      const { id, move } = input;
+
+      //check if move is valid:
+
+      const { position1, position2 } = move;
+      //gets game:
+      const game = await ctx.prisma.gameState.findFirstOrThrow({
+        where: {
+          id,
+        },
+      });
+
+      let gameState = JSON.parse(game.game_state) as GameStateObject;
+
+      let { pieces, ccolor, account1, account2 } = gameState;
+
+      const selected = pieces.find((piece) => piece.position === position1);
+
+      const index = position2;
+
+      const cellPiece = pieces.find((piece) => piece.position === index);
+
+      // Handle moving to empty cell
+      if (selected) {
+        if (
+          !cellPiece &&
+          (((index - 1) % 16 < 8 && index % 2 === 0) ||
+            (index % 16 > 8 && index % 2 === 1)) &&
+          ((selected.color === "green" && index - selected.position === 7) ||
+            index - selected.position === 9 ||
+            (selected.color === "yellow" && index - selected.position === -7) ||
+            index - selected.position === -9)
+        ) {
+          pieces = [
+            {
+              position: index,
+              color: selected.color,
+            },
+            ...pieces.filter((piece) => piece.position !== selected.position),
+          ];
+
+          ccolor = ccolor === "yellow" ? "green" : "yellow";
+        }
+      }
+
+      gameState = {
+        pieces: pieces,
+        ccolor: ccolor,
+        account1: "",
+        account2: "",
+      };
+
+      await ctx.prisma.gameState.update({
+        where: {
+          id,
+        },
+        data: {
+          game_state: JSON.stringify(gameState),
+        },
+      });
+
+      return 1;
     }),
 });
 
