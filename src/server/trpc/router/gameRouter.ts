@@ -143,6 +143,39 @@ export const gameRouter = t.router({
         }
       }
 
+      //eating a piece:
+
+      const jumpPiece = pieces.find(
+        (piece) => selected && piece.position === 2 * index - selected.position
+      );
+
+      if (
+        !jumpPiece &&
+        selected &&
+        cellPiece &&
+        selected.color !== cellPiece.color &&
+        cellPiece.position < 57 &&
+        cellPiece.position > 8 &&
+        cellPiece.position % 8 !== 1 &&
+        cellPiece.position % 8 !== 0 &&
+        (Math.abs(index - selected.position) === 7 ||
+          Math.abs(index - selected.position) === 9)
+      ) {
+        pieces = [
+          {
+            position: 2 * index - selected.position,
+            color: selected.color,
+          },
+          ...pieces.filter(
+            (piece) =>
+              piece.position !== selected.position &&
+              piece.position !== cellPiece.position
+          ),
+        ];
+
+        ccolor = ccolor === "yellow" ? "green" : "yellow";
+      }
+
       gameState = {
         pieces: pieces,
         ccolor: ccolor,
