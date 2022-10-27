@@ -95,19 +95,11 @@ const GamePage = () => {
     syncPieces();
   }, [gameStateQuery.data]);
 
-  const shouldUpdateRef = useRef(false);
-
-  const updateGame = () => (shouldUpdateRef.current = true);
-
   useEffect(() => {
-    if (shouldUpdateRef.current) {
-      updateMutation.mutate({
-        id: query?.gameID as unknown as string,
-        gameState: JSON.stringify({ pieces, ccolor }),
-      });
-      shouldUpdateRef.current = false;
-    }
-  }, [shouldUpdateRef, updateMutation, ccolor, pieces, query?.gameID]);
+    const interval = setInterval(gameStateQuery.refetch, 2000);
+
+    return () => clearInterval(interval);
+  }, [gameStateQuery.refetch]);
 
   type UpdateMoveRef = null | {
     position1: number;
@@ -124,6 +116,7 @@ const GamePage = () => {
         id: query?.gameID as unknown as string,
         move: updateMoveRef.current,
       });
+
       updateMoveRef.current = null;
     }
   }, [updateMoveMutation, query?.gameID]);
@@ -143,10 +136,6 @@ const GamePage = () => {
     }
 
     //Handle moving to empty cell
-
-    console.log(cellPiece);
-    console.log(selected);
-    const index2 = index;
 
     if (selected) {
       updateMoveRef.current = {

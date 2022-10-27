@@ -120,6 +120,8 @@ export const gameRouter = t.router({
 
       const cellPiece = pieces.find((piece) => piece.position === index);
 
+      let moved = false;
+
       // Handle moving to empty cell
       if (selected) {
         if (
@@ -140,6 +142,7 @@ export const gameRouter = t.router({
           ];
 
           ccolor = ccolor === "yellow" ? "green" : "yellow";
+          moved = true;
         }
       }
 
@@ -174,6 +177,7 @@ export const gameRouter = t.router({
         ];
 
         ccolor = ccolor === "yellow" ? "green" : "yellow";
+        moved = true;
       }
 
       gameState = {
@@ -192,7 +196,7 @@ export const gameRouter = t.router({
         },
       });
 
-      return 1;
+      return moved;
     }),
 });
 
