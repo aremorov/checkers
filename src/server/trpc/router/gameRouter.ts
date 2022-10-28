@@ -121,7 +121,12 @@ export const gameRouter = t.router({
         account1 = account;
       }
 
-      if (account1 !== "" && account2 === "" && ccolor === "green") {
+      if (
+        account1 !== "" &&
+        account2 === "" &&
+        ccolor === "green" &&
+        account1 !== account
+      ) {
         account2 = account;
       }
 
