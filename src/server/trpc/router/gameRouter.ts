@@ -112,7 +112,9 @@ export const gameRouter = t.router({
 
       let gameState = JSON.parse(game.game_state) as GameStateObject;
 
-      let { pieces, ccolor, account1, account2 } = gameState;
+      let { pieces, ccolor } = gameState;
+
+      const { account1, account2 } = gameState;
 
       const selected = pieces.find((piece) => piece.position === position1);
 
