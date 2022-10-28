@@ -73,8 +73,6 @@ const GamePage = () => {
     id: (query?.gameID as unknown as string) || "",
   });
 
-  const updateMutation = trpc.game.updateGameState.useMutation();
-
   const updateMoveMutation = trpc.game.updateMove.useMutation();
 
   const [pieces, setPieces] = useState<Piece[]>([]);
@@ -135,7 +133,7 @@ const GamePage = () => {
       setSelected(cellPiece);
     }
 
-    //Handle moving to empty cell
+    //Sending move to backend:
 
     if (selected) {
       updateMoveRef.current = {
@@ -144,61 +142,61 @@ const GamePage = () => {
       };
       setSelected(null);
     }
-    // if (selected) {
-    //   if (
-    //     !cellPiece &&
-    //     (((index - 1) % 16 < 8 && index % 2 === 0) ||
-    //       (index % 16 > 8 && index % 2 === 1)) &&
-    //     ((selected.color === "green" && index - selected.position === 7) ||
-    //       index - selected.position === 9 ||
-    //       (selected.color === "yellow" && index - selected.position === -7) ||
-    //       index - selected.position === -9)
-    //   ) {
-    //     setPieces([
-    //       {
-    //         position: index,
-    //         color: selected.color,
-    //       },
-    //       ...pieces.filter((piece) => piece.position !== selected.position),
-    //     ]);
-    //     ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
-    //     updateGame();
-    //   }
-    //   setSelected(null);
-    // }
 
-    // Grab the piece that the selected piece would jump to, if any,
-    // const jumpPiece = pieces.find(
-    //   (piece) => selected && piece.position === 2 * index - selected.position
-    // );
+    //optimistic update:
+    if (selected) {
+      if (
+        !cellPiece &&
+        (((index - 1) % 16 < 8 && index % 2 === 0) ||
+          (index % 16 > 8 && index % 2 === 1)) &&
+        ((selected.color === "green" && index - selected.position === 7) ||
+          index - selected.position === 9 ||
+          (selected.color === "yellow" && index - selected.position === -7) ||
+          index - selected.position === -9)
+      ) {
+        setPieces([
+          {
+            position: index,
+            color: selected.color,
+          },
+          ...pieces.filter((piece) => piece.position !== selected.position),
+        ]);
+        ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
+      }
+      setSelected(null);
+    }
 
-    // Handle capturing enemy piece
-    // if (
-    //   !jumpPiece &&
-    //   selected &&
-    //   cellPiece &&
-    //   selected.color !== cellPiece.color &&
-    //   cellPiece.position < 57 &&
-    //   cellPiece.position > 8 &&
-    //   cellPiece.position % 8 !== 1 &&
-    //   cellPiece.position % 8 !== 0 &&
-    //   (Math.abs(index - selected.position) === 7 ||
-    //     Math.abs(index - selected.position) === 9)
-    // ) {
-    //   setPieces([
-    //     {
-    //       position: 2 * index - selected.position,
-    //       color: selected.color,
-    //     },
-    //     ...pieces.filter(
-    //       (piece) =>
-    //         piece.position !== selected.position &&
-    //         piece.position !== cellPiece.position
-    //     ),
-    //   ]);
-    //   ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
-    //   updateGame();
-    // }
+    //Grab the piece that the selected piece would jump to, if any,
+    const jumpPiece = pieces.find(
+      (piece) => selected && piece.position === 2 * index - selected.position
+    );
+
+    //Handle capturing enemy piece
+    if (
+      !jumpPiece &&
+      selected &&
+      cellPiece &&
+      selected.color !== cellPiece.color &&
+      cellPiece.position < 57 &&
+      cellPiece.position > 8 &&
+      cellPiece.position % 8 !== 1 &&
+      cellPiece.position % 8 !== 0 &&
+      (Math.abs(index - selected.position) === 7 ||
+        Math.abs(index - selected.position) === 9)
+    ) {
+      setPieces([
+        {
+          position: 2 * index - selected.position,
+          color: selected.color,
+        },
+        ...pieces.filter(
+          (piece) =>
+            piece.position !== selected.position &&
+            piece.position !== cellPiece.position
+        ),
+      ]);
+      ccolor === "yellow" ? setCcolor("green") : setCcolor("yellow");
+    }
   };
 
   const listItems = num64.map((i) => (
