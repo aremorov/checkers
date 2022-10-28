@@ -102,6 +102,7 @@ const GamePage = () => {
   type UpdateMoveRef = null | {
     position1: number;
     position2: number;
+    account: string;
   };
 
   const updateMoveRef = useRef<UpdateMoveRef>(null);
@@ -135,10 +136,11 @@ const GamePage = () => {
 
     //Sending move to backend:
 
-    if (selected) {
+    if (selected && loggedIn) {
       updateMoveRef.current = {
         position1: selected.position,
         position2: index,
+        account: loggedIn,
       };
       setSelected(null);
     }
@@ -233,7 +235,7 @@ const GamePage = () => {
           Menu
         </button>
         <button className={blueButtonStyle} type="button" onClick={handleShare}>
-          share game link
+          share game link, {loggedIn}
         </button>
         <Login />
       </div>

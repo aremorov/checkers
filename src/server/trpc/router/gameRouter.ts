@@ -23,6 +23,7 @@ type MoveObject = {
 const ZMove = z.object({
   position1: z.number(),
   position2: z.number(),
+  account: z.string(),
 });
 
 const initialPieces: Piece[] = [];
@@ -102,7 +103,7 @@ export const gameRouter = t.router({
 
       //check if move is valid:
 
-      const { position1, position2 } = move;
+      const { position1, position2, account } = move;
       //gets game:
       const game = await ctx.prisma.gameState.findFirstOrThrow({
         where: {
@@ -114,7 +115,15 @@ export const gameRouter = t.router({
 
       let { pieces, ccolor } = gameState;
 
-      const { account1, account2 } = gameState;
+      let { account1, account2 } = gameState;
+
+      if (account1 === "" && ccolor === "yellow") {
+        account1 = account;
+      }
+
+      if (account1 !== "" && account2 === "" && ccolor === "green") {
+        account2 = account;
+      }
 
       const selected = pieces.find((piece) => piece.position === position1);
 
@@ -144,7 +153,6 @@ export const gameRouter = t.router({
           ];
 
           ccolor = ccolor === "yellow" ? "green" : "yellow";
-          moved = true;
         }
       }
 
@@ -179,24 +187,29 @@ export const gameRouter = t.router({
         ];
 
         ccolor = ccolor === "yellow" ? "green" : "yellow";
-        moved = true;
       }
 
       gameState = {
         pieces: pieces,
         ccolor: ccolor,
-        account1: "",
-        account2: "",
+        account1: account1,
+        account2: account2,
       };
 
-      await ctx.prisma.gameState.update({
-        where: {
-          id,
-        },
-        data: {
-          game_state: JSON.stringify(gameState),
-        },
-      });
+      if (
+        (account === account1 && ccolor === "green") ||
+        (account === account2 && ccolor === "yellow")
+      ) {
+        await ctx.prisma.gameState.update({
+          where: {
+            id,
+          },
+          data: {
+            game_state: JSON.stringify(gameState),
+          },
+        });
+        moved = true;
+      }
 
       return moved;
     }),
