@@ -22,7 +22,7 @@ const HomePage = () => {
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-12">
-      <h1 className="text-5xl">Checler Sleven</h1>
+      <h1 className="text-5xl">Checker Seven</h1>
       <button
         disabled={newGameMutation.isLoading}
         onClick={handleNewGame}

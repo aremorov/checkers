@@ -48,7 +48,6 @@ const initialGameState: GameStateObject = {
   account1: "",
   account2: "",
 };
-
 export const gameRouter = t.router({
   newGame: t.procedure.mutation(async ({ ctx }) => {
     const game = await ctx.prisma.gameState.create({
